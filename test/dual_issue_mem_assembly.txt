@@ -1,0 +1,573 @@
+
+///////////////////////////////// paralel olarak branch ve jalr yada jal gelirse (aynı durum iki memory komutu gelirse de geçerli)/////////////////////////////////////////////////////
+//////////////////////////////// stall_issue //////////////////////////////////////////////
+00a00293
+01400313
+010000ef
+00628e63
+01e00393
+02800413
+03200493
+03c00513
+06e00593
+07800613
+06400693
+06e00713
+
+
+    addi x5, x0, 10      # x5 = 10
+    addi x6, x0, 20      # x6 = 20
+    
+    # jal ve branch paralel gelecek
+    jal x1, label1       # x1 = PC+4, jump to label1
+    beq x5, x6, label2   # Eğer x5 == x6, label2'ye dallanır
+
+    addi x7, x0, 30
+    addi x8, x0, 40
+
+label1:
+    addi x9, x0, 50
+    addi x10, x0, 60
+
+    addi x11,x0,110
+    addi x12,x0,120
+
+label2:
+    addi x13, x0, 100
+    addi x14, x0, 110
+
+
+
+00a00293
+01400313
+02628063
+00c000ef
+01e00393
+02800413
+03200493
+03c00513
+06e00593
+07800613
+06400693
+06e00713
+
+    addi x5, x0, 10      # x5 = 10
+    addi x6, x0, 20      # x6 = 20
+    
+    # branch ve jal paralel gelecek
+    beq x5, x6, label2   # Eğer x5 == x6, label2'ye atlar
+    jal x1, label1       # x1 = PC+4, jump to label1
+
+    addi x7, x0, 30
+    addi x8, x0, 40
+
+label1:
+    addi x9, x0, 50
+    addi x10, x0, 60
+
+    addi x11,x0,110
+    addi x12,x0,120
+
+label2:
+    addi x13, x0, 100
+    addi x14, x0, 110
+
+
+
+/////////////////////////////////  paralel işlenen instructionlarda rd ve rs'ler aynı olursa /////////////////////////
+////////////////////////////////  stall_issue_handle ////////////////////////////////////////////////
+
+06400093
+0c800113
+12c00193
+06418213
+1f400293
+28a00313
+2ee00393
+32000413
+44c00593
+4b000613
+00112023
+00012683
+3e700493
+4d200513
+               
+
+                06400093    → addi x1, x0, 100         # x1 = 0 + 100
+                0c800113    → addi x2, x0, 200         # x2 = 0 + 200
+                12c00193    → addi x3, x0, 300         # x3 = 0 + 300
+                06418213    → addi x4, x3, 100         # x4 = x3 + 100 paralel instructionlarda rs1 için hazard. branch slot öncelikli
+                1f400293    → addi x5, x0, 500         # x5 = 0 + 500
+                28a00313    → addi x6, x0, 650         # x6 = 0 + 650
+                2ee00393    → addi x7, x0, 750         # x7 = 0 + 750
+                32000413    → addi x8, x0, 800         # x8 = 0 + 800
+                44c00593    → addi x11, x0, 1100       # x11 = 0 + 1100
+                4b000613    → addi x12, x0, 1200       # x12 = 0 + 1200
+                00112023    → sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                00012683    → lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
+                3e700493    → addi x9, x0, 999         # x9 = 0 + 999
+                4d200513    → addi x10, x0, 1234       # x10 = 0 + 1234
+
+06400093
+0c800113
+12c00193
+00300233
+1f400293
+28a00313
+2ee00393
+32000413
+44c00593
+4b000613
+00112023
+00012683
+3e700493
+4d200513
+
+
+
+                	addi x1, x0, 100         # x1 = 0 + 100
+                    addi x2, x0, 200         # x2 = 0 + 200
+                    addi x3, x0, 300         # x3 = 0 + 300
+                    add x4, x0, x3         # x4 = x0 + x3   paralel instructionlarda rs2 için hazard. branch slot öncelikli
+                    addi x5, x0, 500         # x5 = 0 + 500
+                    addi x6, x0, 650         # x6 = 0 + 650
+                    addi x7, x0, 750         # x7 = 0 + 750
+                    addi x8, x0, 800         # x8 = 0 + 800
+                    addi x11, x0, 1100       # x11 = 0 + 1100
+                    addi x12, x0, 1200       # x12 = 0 + 1200
+                    sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                    lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
+                    addi x9, x0, 999         # x9 = 0 + 999
+                    addi x10, x0, 1234       # x10 = 0 + 1234
+
+
+06400093
+0c800113
+12c00193
+19000193
+1f400293
+28a00313
+2ee00393
+32000413
+44c00593
+4b000613
+00112023
+00012683
+3e700493
+4d200513
+
+                addi x1, x0, 100         # x1 = 0 + 100
+                addi x2, x0, 200         # x2 = 0 + 200
+                addi x3, x0, 300         # x3 = 0 + 300
+                add x3, x0, 400         # x3 = 0 + 400   paralel instructionlarda x3 için WAW hazard. branch slot öncelikli
+                addi x5, x0, 500         # x5 = 0 + 500
+                addi x6, x0, 650         # x6 = 0 + 650
+                addi x7, x0, 750         # x7 = 0 + 750
+                addi x8, x0, 800         # x8 = 0 + 800
+                addi x11, x0, 1100       # x11 = 0 + 1100
+                addi x12, x0, 1200       # x12 = 0 + 1200
+                sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
+                addi x9, x0, 999         # x9 = 0 + 999
+                addi x10, x0, 1234       # x10 = 0 + 1234
+
+
+06400093
+0c800113
+11800e13
+00112023
+00012183
+19018213
+1f400293
+28a00313
+2ee00393
+32000413
+44c00593
+4b000613
+00112023
+00012683
+3e700493
+4d200513
+
+                addi x1, x0, 100         # x1 = 0 + 100
+                addi x2, x0, 200         # x2 = 0 + 200
+                addi x28,x0,280
+                sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                lw x3, 0(x2)         # x3 = x1      memory slot öncelikli
+                add x4, x3, 400         # x3 = 0 + 400   paralel instructionlarda x3 için RAW hazard. add komutunda rs1 ile lw de rd aynı add 1 cycle stall olmalı
+                addi x5, x0, 500         # x5 = 0 + 500
+                addi x6, x0, 650         # x6 = 0 + 650
+                addi x7, x0, 750         # x7 = 0 + 750
+                addi x8, x0, 800         # x8 = 0 + 800
+                addi x11, x0, 1100       # x11 = 0 + 1100
+                addi x12, x0, 1200       # x12 = 0 + 1200
+                sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
+                addi x9, x0, 999         # x9 = 0 + 999
+                addi x10, x0, 1234       # x10 = 0 + 1234
+   
+//////////////////////////////////////////// paralel olmayan instructionlarda RAW, WAW HAZARD olursa ///////////////////////
+
+06400093
+0c800113
+12c00193
+19000213
+1f418293
+28a00313
+2ee00393
+32000413
+44c00593
+4b000613
+00112023
+00012683
+3e700493
+4d200513
+
+                addi x1, x0, 100         # x1 = 0 + 100 
+                addi x2, x0, 200         # x2 = 0 + 200
+                addi x3, x0, 300         # x3 = 0 + 300
+                add x4, x0, 400         # x4 = x0 + 400   
+                addi x5, x3, 500         # x5 = 300 + 500   aynı slottan x3 RAW hazard
+                addi x6, x0, 650         # x6 = 0 + 650
+                addi x7, x0, 750         # x7 = 0 + 750
+                addi x8, x0, 800         # x8 = 0 + 800
+                addi x11, x0, 1100       # x11 = 0 + 1100
+                addi x12, x0, 1200       # x12 = 0 + 1200
+                sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
+                addi x9, x0, 999         # x9 = 0 + 999
+                addi x10, x0, 1234       # x10 = 0 + 1234
+
+
+06400093
+0c800113
+12c00193
+19000213
+1f420293
+28a18313
+2ee18393
+32020413
+44c20593
+4b018613
+00112023
+00012683
+3e700493
+4d200513
+
+
+                addi x1, x0, 100         # x1 = 0 + 100
+                addi x2, x0, 200         # x2 = 0 + 200
+                addi x3, x0, 300         # x3 = 0 + 300
+                add x4, x0, 400         # x4 = x0 + 400   
+                addi x5, x4, 500         # x5 = 400 + 500   dıger slottan x4 RAW HAZARD
+                addi x6, x3, 650         # x6 = 300 + 650   dıger slottan x3 RAW HAZARD
+                addi x7, x3, 750         # x7 = 300 + 750   bu slottan x3 RAW HAZARD
+                addi x8, x4, 800         # x8 = 400 + 800   bu slottan x4 RAW HAZARD
+                addi x11, x4, 1100       # x11 = 400 + 1100  dıger slottan x4 RAW HAZARD
+                addi x12, x3, 1200       # x12 = 300 + 1200  dıger slottan x3 RAW HAZARD
+                sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
+                addi x9, x0, 999         # x9 = 0 + 999
+                addi x10, x0, 1234       # x10 = 0 + 1234  
+
+////////////////////////////////////// paralel komutta memory, paralel olmayan komutlarda stall işlemi ve RAW, WAW HAZARD  //////////////////////////////////////////////////////
+///////////////////////////////////// stall_issue ve stall_en /////////////////////////////////////
+06400093
+0c800113
+12c00193
+19000213
+1f420293
+28a18313
+2ee18393
+32020413
+44c20593
+4b018613
+00112023
+00012683
+38400493
+4d268513
+01900713
+1f468793
+
+                addi x1, x0, 100         # x1 = 0 + 100
+                addi x2, x0, 200         # x2 = 0 + 200
+                addi x3, x0, 300         # x3 = 0 + 300
+                add x4, x0, 400         # x4 = x0 + 400   
+                addi x5, x4, 500         # x5 = 400 + 500   dıger slottan x4 RAW HAZARD
+                addi x6, x3, 650         # x6 = 300 + 650   dıger slottan x3 RAW HAZARD
+                addi x7, x3, 750         # x7 = 300 + 750   bu slottan x3 RAW HAZARD
+                addi x8, x4, 800         # x8 = 400 + 800   bu slottan x4 RAW HAZARD
+                addi x11, x4, 1100       # x11 = 400 + 1100  dıger slottan x4 RAW HAZARD
+                addi x12, x3, 1200       # x12 = 300 + 1200  dıger slottan x3 RAW HAZARD
+                sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
+                addi x9, x0, 900         # x9 = 0 + 999
+                addi x10, x13, 1234       # x10 = 100 + 1234   memory slotunda stall olması lazım    
+				addi x14,x0,25          # x14 = 0 + 25
+                addi x15, x13, 500      # x15 = 100 + 500      memory slotund stall olması lazım
+
+
+
+06400093
+0c800113
+12c00193
+19000213
+1f420293
+28a18313
+2ee18393
+32020413
+44c20593
+4b018613
+00112023
+00012683
+38468493
+4d200513
+01968713
+1f400793
+
+                addi x1, x0, 100         # x1 = 0 + 100
+                addi x2, x0, 200         # x2 = 0 + 200
+                addi x3, x0, 300         # x3 = 0 + 300
+                add x4, x0, 400         # x4 = x0 + 400   
+                addi x5, x4, 500         # x5 = 400 + 500   dıger slottan x4 RAW HAZARD
+                addi x6, x3, 650         # x6 = 300 + 650   dıger slottan x3 RAW HAZARD
+                addi x7, x3, 750         # x7 = 300 + 750   bu slottan x3 RAW HAZARD
+                addi x8, x4, 800         # x8 = 400 + 800   bu slottan x4 RAW HAZARD
+                addi x11, x4, 1100       # x11 = 400 + 1100  dıger slottan x4 RAW HAZARD
+                addi x12, x3, 1200       # x12 = 300 + 1200  dıger slottan x3 RAW HAZARD
+                sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
+                addi x9, x13, 900         # x9 = 100 + 999   branch slotunda stall lazım
+                addi x10, x0, 1234       # x10 = 0 + 1234       
+                addi x14,x13,25          # x14 = 100 + 25    brnach slotunda stall lazım
+                addi x15, x0, 500      # x15 = 0 + 500 
+
+06400093
+0c800113
+12c00193
+19000213
+1f420293
+28a18313
+006283b3
+32020413
+002205b3
+00118633
+00112023
+00012683
+38468493
+4d200513
+01968713
+1f400793
+                addi x1, x0, 100         # x1 = 0 + 100
+                addi x2, x0, 200         # x2 = 0 + 200
+                addi x3, x0, 300         # x3 = 0 + 300
+                add x4, x0, 400         # x4 = x0 + 400   
+                addi x5, x4, 500         # x5 = 400 + 500   dıger slottan x4 RAW HAZARD
+                addi x6, x3, 650         # x6 = 300 + 650   dıger slottan x3 RAW HAZARD
+                add x7, x5, x6         # x7 = 300 + 750   bu slottan x5 dıger slottan x6 RAW HAZARD
+                addi x8, x4, 800         # x8 = 400 + 800   bu slottan x4 RAW HAZARD
+                add x11, x4, x2       # x11 = 400 + 1100  dıger slottan x4 RAW HAZARD
+                add x12, x3, x1       # x12 = 300 + 1200  dıger slottan x3 RAW HAZARD
+                sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
+                addi x9, x13, 900         # x9 = 100 + 999   branch slotunda stall lazım
+                addi x10, x0, 1234       # x10 = 0 + 1234       
+                addi x14,x13,25          # x14 = 100 + 25    brnach slotunda stall lazım
+                addi x15, x0, 500      # x15 = 0 + 500 
+
+
+06400093
+0c800113
+12c00193
+19000213
+1f420293
+28a18313
+006283b3
+00520433
+002205b3
+00118633
+00112023
+00012683
+38468493
+00a68513
+01968713
+2bc68793
+07d68813
+6a468893
+
+                addi x1, x0, 100         # x1 = 0 + 100
+                addi x2, x0, 200         # x2 = 0 + 200
+                addi x3, x0, 300         # x3 = 0 + 300
+                add x4, x0, 400         # x4 = x0 + 400   
+                addi x5, x4, 500         # x5 = 400 + 500   dıger slottan x4 RAW HAZARD
+                addi x6, x3, 650         # x6 = 300 + 650   dıger slottan x3 RAW HAZARD
+                add x7, x5, x6         # x7 = 300 + 750   bu slottan x3 RAW HAZARD
+                add x8, x4, x5         # x8 = 400 + 800   bu slottan x4 RAW HAZARD
+                add x11, x4, x2       # x11 = 400 + 1100  dıger slottan x4 RAW HAZARD
+                add x12, x3, x1       # x12 = 300 + 1200  dıger slottan x3 RAW HAZARD
+                sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
+                addi x9, x13, 900         # x9 = 100 + 999   branch slotunda stall lazım
+                addi x10, x13, 10       # x10 = 0 + 1234       
+                addi x14,x13,25          # x14 = 100 + 25    brnach slotunda stall lazım
+                addi x15, x13, 700      # x15 = 100 + 700 
+                addi x16,x13,125          # x14 = 100 + 25    brnach slotunda stall lazım
+                addi x17, x13, 1700      # x15 = 100 + 1700                 
+
+///////////////////////////////////////   branchte flush işlemi ////////////////////////////////////////
+
+00a00113
+01e00193
+06400093
+03200293
+02128063
+0080a103
+00a00e13
+00a00e93
+00a00f13
+00a00c93
+00a00d13
+00a00d93
+02800213
+03200293
+03c00313
+04600393
+
+            addi x2,x0,10
+            addi x3,x0,30
+            addi x1, x0, 100      # x1 = 100
+            addi x5, x0, 50       # x5 = 50 (yüklemek istediğimiz değer)
+            beq  x5,x1, target    # branch olmayacak 
+
+            lw   x2, 8(x1)        # x2 = Mem[108] = 0 //stall olmaycak rs1 ve rs2, rd'ye esit degil
+            ADDI x28, x0, 10      # x1 = 10
+            ADDI x29, x0, 10      # x1 = 10
+            ADDI x30,x0,10
+            ADDI x25,x0,10
+            ADDI x26,x0,10   
+            ADDI x27,x0,10    
+            # target etiketi burada başlıyor
+        target:
+            ADDI x4, x0, 40  
+            ADDI x5, x0, 50      
+            ADDI x6, x0, 60      
+            ADDI x7, x0, 70     
+
+
+00a00113
+01e00193
+06400093
+06400293
+02128063
+0080a103
+00a00e13
+00a00e93
+00a00f13
+00a00c93
+00a00d13
+00a00d93
+02800213
+1f400293
+03c00313
+04600393
+
+            addi x2,x0,10
+            addi x3,x0,30
+            addi x1, x0, 100      # x1 = 100
+            addi x5, x0, 100       # x5 = 100 (yüklemek istediğimiz değer)
+            beq  x5,x1, target     # branch olacak
+
+            lw   x2, 8(x1)        # x2 = Mem[108] = 0  lw ile branch paralel işleniyor. lw, branch'tan sonra geldiği için lw'nin flush edilmesi lazım 
+            ADDI x28, x0, 10      # x1 = 10
+            ADDI x29, x0, 10      # x1 = 10
+            ADDI x30,x0,10
+            ADDI x25,x0,10
+            ADDI x26,x0,10   
+            ADDI x27,x0,10    
+            # target etiketi burada başlıyor
+        target:
+            ADDI x4, x0, 40  
+            ADDI x5, x0, 500      
+            ADDI x6, x0, 60      
+            ADDI x7, x0, 70   
+
+
+
+00a00113
+01e00193
+06400093
+06400293
+0080a103
+00128e63
+00a00e13
+00a00e93
+00a00f13
+00a00c93
+00a00d13
+00a00d93
+02800213
+1f400293
+03c00313
+04600393
+
+            addi x2,x0,10
+            addi x3,x0,30
+            addi x1, x0, 100      # x1 = 100
+            addi x5, x0, 100       # x5 = 100 (yüklemek istediğimiz değer)
+            lw   x2, 8(x1)        # x2 = Mem[108] = 0  lw ile branch paralel işleniyor. lw, branch'tan önce geldiği için lw'nin flush edilmez 
+            beq  x5,x1, target     # branch olacak
+           
+            ADDI x28, x0, 10      # x1 = 10
+            ADDI x29, x0, 10      # x1 = 10
+            ADDI x30,x0,10
+            ADDI x25,x0,10
+            ADDI x26,x0,10   
+            ADDI x27,x0,10    
+            # target etiketi burada başlıyor
+        target:
+            ADDI x4, x0, 40  
+            ADDI x5, x0, 500      
+            ADDI x6, x0, 60      
+            ADDI x7, x0, 70               
+
+/////////////////////////////////////////  paralel komutta lw için RAW Hazard ardından stall //////////////////          
+///////////////////////////////////////// stall_issue_handle ve stall_en //////////////////////////
+
+06400093
+0c800113
+12c00193
+19000213
+1f420293
+28a18313
+00112023
+00520433
+002205b3
+00118633
+00012683
+38400493
+06400b13
+00a68513
+01968713
+2bc68793
+07d68813
+6a468893
+
+
+                addi x1, x0, 100         # x1 = 0 + 100
+                addi x2, x0, 200         # x2 = 0 + 200
+                addi x3, x0, 300         # x3 = 0 + 300
+                add x4, x0, 400         # x4 = x0 + 400   
+                addi x5, x4, 500         # x5 = 400 + 500   dıger slottan x4 RAW HAZARD
+                addi x6, x3, 650         # x6 = 300 + 650   dıger slottan x3 RAW HAZARD
+                sw   x1, 0(x2)           # Mem[x2 + 0] = x1
+                add x8, x4, x5         # x8 = 400 + 800   bu slottan x4 RAW HAZARD
+                add x11, x4, x2       # x11 = 400 + 1100  dıger slottan x4 RAW HAZARD
+                add x12, x3, x1       # x12 = 300 + 1200  dıger slottan x3 RAW HAZARD
+                lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
+                addi x9, x0, 900         # x9 = 100 + 999   paralel işlemde RAW Hazard 
+                addi x22, x0, 100
+                addi x10, x13, 10       # x10 = 0 + 1234       
+                addi x14,x13,25          # x14 = 100 + 25    brnach slotunda stall lazım
+                addi x15, x13, 700      # x15 = 100 + 700 
+                addi x16,x13,125          # x14 = 100 + 25    brnach slotunda stall lazım
+                addi x17, x13, 1700      # x15 = 100 + 1700
