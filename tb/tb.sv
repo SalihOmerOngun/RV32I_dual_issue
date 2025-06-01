@@ -64,27 +64,32 @@ module tb ();
             //$fdisplay(file_pointer, "handle=%0d", i_core_model.stall_issue_handle_memory);
             //$fdisplay(file_pointer, "handle=%0d", i_core_model.stall_issue_handle_write_back);
             $fwrite(file_pointer, "0x%8h (0x%8h)", pc[i], instr[i]);
+            $fwrite(file_pointer, "\n");
           end if (reg_addr[i] == 5'b0 && instr[i]!=32'h00000000 && (stall_issue_mem == 1 && instr[i][6:0] == 7'b1100011) && stall_en_mem == 0) begin // stall_issue 1 olup memory de nop,branch te breanch komutu olursa diye yazdım
             //$fdisplay(file_pointer, "nerede2");
             //$fdisplay(file_pointer, "handle=%0d", i_core_model.stall_issue_handle_memory);
             //$fdisplay(file_pointer, "handle=%0d", i_core_model.stall_issue_handle_write_back);
             $fwrite(file_pointer, "0x%8h (0x%8h)", pc[i], instr[i]);
+            $fwrite(file_pointer, "\n");
           end else begin
             if (reg_addr[i] > 9) begin
              // $fdisplay(file_pointer, "nerede3");
               $fwrite(file_pointer, "0x%8h (0x%8h) x%0d 0x%8h", pc[i], instr[i], reg_addr[i], reg_data[i]);
+              $fwrite(file_pointer, "\n");
             end else if(reg_addr[i] > 0) begin // nerede1 de stall ları koydugumuz için buraya giriyor >0 eklemezsek
               //$fdisplay(file_pointer, "nerede4");
               $fwrite(file_pointer, "0x%8h (0x%8h) x%0d  0x%8h", pc[i], instr[i], reg_addr[i], reg_data[i]);
+              $fwrite(file_pointer, "\n");
             end
           end
           if (mem_wrt[i] == 1) begin
            // $fdisplay(file_pointer, "nerede_mem");
             $fwrite(file_pointer, "0x%8h (0x%8h) mem 0x%8h 0x%8h", pc[i], instr[i], mem_addr[i], mem_data[i]);
-          end
-          if(instr[i]!=32'h00000000 || (instr[i]==32'h000000013 && stall_issue_mem == 1)) begin
             $fwrite(file_pointer, "\n");
-          end  
+          end
+          //if(instr[i]!=32'h00000000 || (instr[i]==32'h000000013 && stall_issue_mem == 1)) begin
+          //  $fwrite(file_pointer, "\n");
+          //end  
         end
       end
       @(negedge clk);
