@@ -301,7 +301,7 @@ label2:
                 addi x12, x3, 1200       # x12 = 300 + 1200  dıger slottan x3 RAW HAZARD
                 sw   x1, 0(x2)           # Mem[x2 + 0] = x1
                 lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
-                addi x9, x0, 900         # x9 = 0 + 999
+                addi x9, x0, 900         # x9 = 0 + 900
                 addi x10, x13, 1234       # x10 = 100 + 1234   memory slotunda stall olması lazım    
 				addi x14,x0,25          # x14 = 0 + 25
                 addi x15, x13, 500      # x15 = 100 + 500      memory slotund stall olması lazım
@@ -337,7 +337,7 @@ label2:
                 addi x12, x3, 1200       # x12 = 300 + 1200  dıger slottan x3 RAW HAZARD
                 sw   x1, 0(x2)           # Mem[x2 + 0] = x1
                 lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
-                addi x9, x13, 900         # x9 = 100 + 999   branch slotunda stall lazım
+                addi x9, x13, 900         # x9 = 100 + 900   branch slotunda stall lazım
                 addi x10, x0, 1234       # x10 = 0 + 1234       
                 addi x14,x13,25          # x14 = 100 + 25    brnach slotunda stall lazım
                 addi x15, x0, 500      # x15 = 0 + 500 
@@ -370,7 +370,7 @@ label2:
                 add x12, x3, x1       # x12 = 300 + 1200  dıger slottan x3 RAW HAZARD
                 sw   x1, 0(x2)           # Mem[x2 + 0] = x1
                 lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
-                addi x9, x13, 900         # x9 = 100 + 999   branch slotunda stall lazım
+                addi x9, x13, 900         # x9 = 100 + 900   branch slotunda stall lazım
                 addi x10, x0, 1234       # x10 = 0 + 1234       
                 addi x14,x13,25          # x14 = 100 + 25    brnach slotunda stall lazım
                 addi x15, x0, 500      # x15 = 0 + 500 
@@ -407,7 +407,7 @@ label2:
                 add x12, x3, x1       # x12 = 300 + 1200  dıger slottan x3 RAW HAZARD
                 sw   x1, 0(x2)           # Mem[x2 + 0] = x1
                 lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
-                addi x9, x13, 900         # x9 = 100 + 999   branch slotunda stall lazım
+                addi x9, x13, 900         # x9 = 100 + 900   branch slotunda stall lazım
                 addi x10, x13, 10       # x10 = 0 + 1234       
                 addi x14,x13,25          # x14 = 100 + 25    brnach slotunda stall lazım
                 addi x15, x13, 700      # x15 = 100 + 700 
@@ -566,7 +566,7 @@ label2:
                 lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
                 addi x9, x0, 900         # x9 = 100 + 999   paralel işlemde RAW Hazard 
                 addi x22, x0, 100
-                addi x10, x13, 10       # x10 = 0 + 1234       
+                addi x10, x13, 10       # x10 = 100 + 10        
                 addi x14,x13,25          # x14 = 100 + 25    brnach slotunda stall lazım
                 addi x15, x13, 700      # x15 = 100 + 700 
                 addi x16,x13,125          # x14 = 100 + 25    brnach slotunda stall lazım
