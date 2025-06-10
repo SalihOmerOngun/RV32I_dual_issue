@@ -530,8 +530,8 @@ label2:
             ADDI x6, x0, 60      
             ADDI x7, x0, 70               
 
-/////////////////////////////////////////  paralel komutta lw için RAW Hazard ardından stall //////////////////          
-///////////////////////////////////////// stall_issue_handle ve stall_en //////////////////////////
+/////////////////////////////////////////   stall //////////////////          
+///////////////////////////////////////// stall_en //////////////////////////
 
 06400093
 0c800113
@@ -564,7 +564,7 @@ label2:
                 add x11, x4, x2       # x11 = 400 + 1100  dıger slottan x4 RAW HAZARD
                 add x12, x3, x1       # x12 = 300 + 1200  dıger slottan x3 RAW HAZARD
                 lw   x13, 0(x2)          # x13 = Mem[x2 + 0]
-                addi x9, x0, 900         # x9 = 100 + 999   paralel işlemde RAW Hazard 
+                addi x9, x0, 900         # x9 = 0 + 900    
                 addi x22, x0, 100
                 addi x10, x13, 10       # x10 = 100 + 10        
                 addi x14,x13,25          # x14 = 100 + 25    brnach slotunda stall lazım
