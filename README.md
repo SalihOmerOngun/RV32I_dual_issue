@@ -1,4 +1,4 @@
-Dual issue RİSIC-V core. Sırasıyla 
+Dual issue RISC-V core. Sırasıyla 
 FETCH -> ISSUE -> (A) DECODE -> EXECUTE -> SPACE  ->  WRITE BACK
                 -> (B) DECODE -> EXECUTE -> MEMORY ->
 A datapath'inde Branch ve Integer operasyonlar, B datapth'inde Memory ve Integer işlemleri oluyor.
